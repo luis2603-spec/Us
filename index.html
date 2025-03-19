@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cálculo de Notas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background: #f7f9fc;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cálculo de Notas</h1>
+  <form id="gradesForm">
+    <div>
+      <label for="taller">Taller (3 puntos): </label>
+      <input type="number" id="taller" max="20" min="1" step="0.1" required>
+      <p class="error" id="error-taller" style="display: none;">La nota debe estar entre 1 y 20.</p>
+    </div>
+    
+    <div>
+      <label for="exposicion">Exposición (3 puntos): </label>
+      <input type="number" id="exposicion" max="20" min="1" step="0.1" required>
+      <p class="error" id="error-exposicion" style="display: none;">La nota debe estar entre 1 y 20.</p>
+    </div>
+    
+    <div>
+      <label for="itclass">Prueba Itclass (3 puntos): </label>
+      <input type="number" id="itclass" max="20" min="1" step="0.1" required>
+      <p class="error" id="error-itclass" style="display: none;">La nota debe estar entre 1 y 20.</p>
+    </div>
+    
+    <button type="button" onclick="validateAndCalculate()">Calcular</button>
+  </form>
+  
+  <div id="results" style="display: none;"></div>
+
+  <script>
+    function validateAndCalculate() {
+      let valid = true;
+
+      // Validar cada campo
+      const fields = [
+        { id: "taller", errorId: "error-taller" },
+        { id: "exposicion", errorId: "error-exposicion" },
+        { id: "itclass", errorId: "error-itclass" }
+      ];
+
+      fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const error = document.getElementById(field.errorId);
+
+        if (input.value < 1 || input.value > 20 || input.value === "") {
+          error.style.display = "block";
+          valid = false;
+        } else {
+          error.style.display = "none";
+        }
+      });
+
+      if (!valid) {
+        alert("Por favor, corrige las notas que están fuera del rango permitido (1 a 20).");
+        return; // Detener si hay errores
+      }
+
+      calculate(); // Continuar con el cálculo si todo es válido
+    }
+
+    function calculate() {
+      // Pesos de las evaluaciones
+      const pesos = {
+        taller: 0.15,
+        exposicion: 0.15,
+        itclass: 0.15
+      };
+
+      const futureEvaluations = [
+        { nombre: "Ensayo", puntos: 3 },
+        { nombre: "Lecturas", puntos: 4 },
+        { nombre: "Rasgos", puntos: 2 },
+        { nombre: "OC", puntos: 2 }
+      ];
+
+      // Notas ingresadas
+      const taller = parseFloat(document.getElementById("taller").value) || 0;
+      const exposicion = parseFloat(document.getElementById("exposicion").value) || 0;
+      const itclass = parseFloat(document.getElementById("itclass").value) || 0;
+
+      // Cálculo de puntos acumulados
+      const puntosObtenidos =
+        (taller * pesos.taller) +
+        (exposicion * pesos.exposicion) +
+        (itclass * pesos.itclass);
+
+      // Cálculo de promedio
+      const promedio = (taller + exposicion + itclass) / 3;
+
+      // Cálculo de puntos restantes para aprobar
+      const puntosRestantes = Math.max(10 - puntosObtenidos, 0);
+
+      // Puntos que quedan por evaluar
+      const totalPorEvaluar = futureEvaluations.reduce((acc, eval) => acc + eval.puntos, 0);
+
+      // Mostrar resultados directamente como texto
+      const results = `
+        Puntos acumulados: ${puntosObtenidos.toFixed(2)}<br>
+        Promedio: ${promedio.toFixed(2)}<br>
+        Puntos faltantes para aprobar: ${puntosRestantes.toFixed(2)}<br>
+        Puntos que quedan por evaluar: ${totalPorEvaluar}<br>
+        Evaluaciones pendientes: ${futureEvaluations.map(e => `${e.nombre} - ${e.puntos} puntos`).join(", ")}
+      `;
+
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = results;
+      resultsDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
